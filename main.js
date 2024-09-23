@@ -4,39 +4,115 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
-const FOV = 75; //field of view at 75 degrees
+const FOV = 75;
 const viewMin = 0.1;
 const viewMax = 1000;
 
-// object loader
 const gltfLoader = new GLTFLoader();
-// create scene
 const scene = new THREE.Scene();
-// camera with params
 const camera = new THREE.PerspectiveCamera(
     FOV,
     window.innerWidth / window.innerHeight,
     viewMin,
     viewMax
 );
-// creates renderer targeting canvas
 const renderer = new THREE.WebGLRenderer({
     canvas: document.querySelector("#bg"),
 });
 
 // loads object
-let bear;
-gltfLoader.load("./assets/BEAR-textured-9-22-24.gl.gltf", (gltf) => {
-    bear = gltf.scene;
-    gltf.scene.scale.set(10, 10, 10);
-    scene.add(bear);
-});
 
-// set pixel ratio based on device screen
+// async function loadModels() {
+//     bearPoseOne =  gltfLoader.load("./public/models/Bearfall.gltf");
+//     bearPoseTwo =  gltfLoader.load("./public/models/Bearpose1.gltf");
+//     bearPoseThree =  gltfLoader.load("./public/models/BearRun.gltf");
+//     bearPoseFour =  gltfLoader.load("./public/models/Standwithpawup.gltf");
+// }
+
+// gltfLoader.load("./assets/BEAR-textured-9-22-24.gl.gltf", (gltf) => {
+//     bear = gltf.scene;
+//     gltf.scene.scale.set(10, 10, 10);
+//     scene.add(bear);
+// });
+
+let bearPoseOne;
+// let bearPoseTwo;
+// let bearPoseThree;
+// let bearPoseFour;
+async function loadingModels() {
+    gltfLoader.load(
+        "models/bearPoseFun.gltf",
+        function (gltf) {
+            scene.add(gltf.scene);
+            gltf.scene.scale.set(15, 15, 15);
+            gltf.scene.position.setY(-15);
+            bearPoseOne = gltf.scene;
+            bearPoseOne.visible = true;
+        },
+        function (xhr) {
+            console.log(
+                "bearPoseOne" + (xhr.loaded / xhr.total) * 100 + "% loaded"
+            );
+        },
+        function (error) {
+            console.log(error);
+            console.log(`Couldn't load bearPoseOne`);
+        }
+    );
+
+    // gltfLoader.load(
+    //     "models/Bearpose1.gltf",
+    //     function (gltf) {
+    //         scene.add(gltf.scene);
+    //         bearPoseTwo = gltf.scene;
+    //         bearPoseTwo.visible = false;
+    //     },
+    //     function (xhr) {
+    //         console.log("bearPoseTwo" + (xhr.loaded / xhr.total) * 100 + "% loaded");
+    //     },
+    //     function (error) {
+    //         console.log(error);
+    //         console.log(`Couldn't load bearPoseTwo`);
+    //     }
+    // );
+
+    // gltfLoader.load(
+    //     "models/BearRun.gltf",
+    //     function (gltf) {
+    //         scene.add(gltf.scene);
+    //         bearPoseThree = gltf.scene;
+    //         bearPoseThree.visible = false;
+    //     },
+    //     function (xhr) {
+    //         console.log("bearPoseThree" + (xhr.loaded / xhr.total) * 100 + "% loaded");
+    //     },
+    //     function (error) {
+    //         console.log(error);
+    //         console.log(`Couldn't load bearPoseThree`);
+    //     }
+    // );
+
+    // gltfLoader.load(
+    //     "models/Standwithpawup.gltf",
+    //     function (gltf) {
+    //         scene.add(gltf.scene);
+    //         bearPoseFour = gltf.scene;
+    //         bearPoseFour.visible = false;
+    //     },
+    //     function (xhr) {
+    //         console.log("bearPoseFour" + (xhr.loaded / xhr.total) * 100 + "% loaded");
+    //     },
+    //     function (error) {
+    //         console.log(error);
+    //         console.log(`Couldn't load bearPoseFour`);
+    //     }
+    // );
+}
+
+loadingModels();
+
 renderer.setPixelRatio(window.devicePixelRatio);
-// sets renderer to full size of window
 renderer.setSize(window.innerWidth, window.innerHeight);
-// position the camera to 30 on Z axis
 camera.position.setZ(40);
 
 renderer.render(scene, camera);
@@ -44,16 +120,19 @@ renderer.render(scene, camera);
 const gridHelper = new THREE.GridHelper(200, 50);
 scene.add(gridHelper);
 const controls = new OrbitControls(camera, renderer.domElement);
+
 // animation loop
 function animate() {
     requestAnimationFrame(animate);
 
-    // bear.rotation.x += 0.01;
-    bear.rotation.y += 0.01;
-    bear.position.setY(-10);
-    // bear.rotation.z += 0.01;
     controls.update();
     renderer.render(scene, camera);
 }
 
 animate();
+
+window.addEventListener("resize", function () {
+    camera.aspect = window.innerWidth / this.window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
